@@ -12,18 +12,18 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
-using ChatClient.ServiceChat;
+using ChatClient.ServiceChat; //Для ServiceChatClient
 
 namespace ChatClient
 {
-    public partial class MainWindow : Window, IServiceChatCallback
+    public partial class MainWindow : Window, IServiceChatCallback //Даём знать клиенту о методе Callback из сервиса
     {
-        bool isConnected = false;
-        ServiceChatClient client;
-        int ID;
+        bool isConnected = false; //Статус подключения - отключён
+        ServiceChatClient client; //Инициализация клиента
+        int ID; //Переменная Айди
         public MainWindow()
         {
-            InitializeComponent();
+            InitializeComponent(); //Инциализация окна пользовательского интерфейса
         }
 
         
@@ -32,11 +32,11 @@ namespace ChatClient
         {
             if(!isConnected)
             {
-                client = new ServiceChatClient(new System.ServiceModel.InstanceContext(this));
-                ID = client.Connect(tbUserName.Text);
-                tbUserName.IsEnabled = false;
-                bConDiscon.Content = "Disconnect";
-                isConnected = true;
+                client = new ServiceChatClient(new System.ServiceModel.InstanceContext(this)); //инициалиация объекта client
+                ID = client.Connect(tbUserName.Text); // айди возвращается из метода клиента, который вызывается с использованием имени юзера
+                tbUserName.IsEnabled = false; //Выключение текстбокса с именем юзера
+                bConDiscon.Content = "Disconnect"; //Изменение надписи у кнопки на Disconnect
+                isConnected = true; //Статус подключения - подключён
             }
         }
 
@@ -44,45 +44,45 @@ namespace ChatClient
         {
             if (isConnected)
             {
-                client.Disconnect(ID);
-                client = null;
-                tbUserName.IsEnabled = true;
-                bConDiscon.Content = "Connect";
-                isConnected = false;
+                client.Disconnect(ID); //Отключение клиента по айди
+                client = null; // деинициализация объекта client
+                tbUserName.IsEnabled = true; //Включение текстбокса с именем юзера
+                bConDiscon.Content = "Connect"; //Изменение надписи у кнопки на Connect
+                isConnected = false; //Статус подключения - отключён
             }
         }
 
-        private void Button_Click(object sender, RoutedEventArgs e)
+        private void Button_Click(object sender, RoutedEventArgs e) //Обработка нажатия клавиши
         {
-            if (isConnected)
+            if (isConnected) //Если подключён
             {
-                DisconnectUser();
+                DisconnectUser(); //Отключить
             }
-            else
+            else //Если отключён
             {
-                ConnectUser();
+                ConnectUser(); //Подключить
             }
         }
 
         public void MsgCallback(string msg)
         {
-            lbChat.Items.Add(msg);
-            lbChat.ScrollIntoView(lbChat.Items[lbChat.Items.Count-1]);
+            lbChat.Items.Add(msg); //Добавить сообщение в листбокс
+            lbChat.ScrollIntoView(lbChat.Items[lbChat.Items.Count-1]); //Скроллинг до самого нового при появлении новых сообщений, что не помещаются
         }
 
-        private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
+        private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e) //Обработка закрытия приложения через крестик (добавлено через свойства объекта через интерфейс иде)
         {
-            DisconnectUser();
+            DisconnectUser(); //Вызов метода отключения юзера
         }
 
-        private void tbMessage_KeyDown(object sender, KeyEventArgs e)
+        private void tbMessage_KeyDown(object sender, KeyEventArgs e) //Обработка нажатия клавиш в текстбоксе сообщения (добавлено через свойства объекта через интерфейс иде)
         {
-            if (e.Key == Key.Enter)
+            if (e.Key == Key.Enter) //Если нажат Enter
             {
-                if (client != null)
+                if (client != null) //Если клиент инициализирован (то есть юзер подключился)
                 {
-                    client.SendMsg(tbMessage.Text, ID);
-                    tbMessage.Text = string.Empty; 
+                    client.SendMsg(tbMessage.Text, ID); //Вызов SendMsg из класса клиент - то есть отправить сообщение
+                    tbMessage.Text = string.Empty; //Очистить строку в текстбоксе
                 }
             }
         }
